@@ -6,37 +6,47 @@
 
 #define K_BYTE 1024
 
-void reverseFile(FILE* inputFile, FILE* outputFile, long sizeofFile){
+enum ERROR_CODES {
+    READ_ERROR_CODE =-1,
+    WRITE_ERROR_CODE = -2,
+};
+
+int reverseFile(FILE* inputFile, FILE* outputFile, long sizeofFile){
 
     long offset = -K_BYTE;
     if(sizeofFile == 0){
-        return;
+        return 0;
     }
     long rest = sizeofFile;
-    long countOfElementsInBuff = 0;
+    long countOfElementsInBuff;
     char buffer[K_BYTE+1];
     char writeBuffer[K_BYTE+1];
     while(1) {
-            if(rest >= K_BYTE) {
-                fseek(inputFile, offset, SEEK_END);
-            } else{
-                fseek(inputFile, 0, SEEK_SET);
-            }
         if (rest < K_BYTE) {
+            fseek(inputFile, 0, SEEK_SET);
             fread(buffer, sizeof(char), rest, inputFile);
             countOfElementsInBuff = rest;
         } else {
+            fseek(inputFile, offset, SEEK_END);
             fread(buffer, sizeof(char), K_BYTE, inputFile);
             countOfElementsInBuff = K_BYTE;
         }
+
+        if(ferror(inputFile)){
+            return -1;
+        }
+
         for (long i = countOfElementsInBuff - 1; i >= 0; --i) {
             writeBuffer[countOfElementsInBuff - 1 - i] = buffer[i];
         }
         fwrite(writeBuffer, sizeof(char), countOfElementsInBuff, outputFile);
+        if(ferror(inputFile)){
+            return -2;
+        }
         offset -= countOfElementsInBuff;
         rest -= countOfElementsInBuff;
         if (rest == 0) {
-            return;
+            return 0;
         }
     }
 }
@@ -49,7 +59,7 @@ char* reversePath(char* string){
     }
 
     size_t leftP=0;
-    size_t rightP=0;
+    size_t rightP;
 
     for (int i = 0; i < len; ++i) {
         if(string[i] == '/' || i == len-1){
@@ -82,9 +92,23 @@ void reverseDir(char* currDirectory){
         free(revDirPath);
         return;
     }
-    struct stat dirBuffer;
-    fstat(fileno(dirF),&dirBuffer);
-    mkdir(revDirPath, dirBuffer.st_mode);
+    struct stat dirStat;
+    if (fstat(fileno(dirF),&dirStat) != 0){
+        printf("error at %s", currDirectory);
+        perror("fstat");
+        free(revDirPath);
+        fclose(dirF);
+        return;
+    }
+
+    if(mkdir(revDirPath, dirStat.st_mode) != 0){
+        printf("error at %s", revDirPath);
+        perror("mkdir");
+        free(revDirPath);
+        fclose(dirF);
+        return;
+    }
+
     free(revDirPath);
 
     DIR *dir = NULL;
@@ -110,16 +134,23 @@ void reverseDir(char* currDirectory){
                 path[i+1+dirLen] = A->d_name[i];
             }
             path[dirLen+fileLen+1] = '\0';
-            struct stat buffer;
+            struct stat fileStat;
             FILE* file;
             if((file = fopen(path,"rb")) == NULL){
                 printf("%s: Cannot open file\n",path);
                 free(path);
                 continue;
             }
-            fstat(fileno(file),&buffer);
+            if(fstat(fileno(file),&fileStat) != 0){
+                perror("fstat");
+                printf("error at %s\n",path);
+                free(path);
+                fclose(file);
+                continue;
+            }
 
-            if(S_ISREG(buffer.st_mode)){
+
+            if(S_ISREG(fileStat.st_mode)){
                 printf("file is regular: %s\n",path);
                 char* revPath = reversePath(path);
                 if(revPath == NULL){
@@ -136,12 +167,31 @@ void reverseDir(char* currDirectory){
                     fclose(file);
                     continue;
                 }
-                reverseFile(file,outputFile,buffer.st_size);
-                fchmod(fileno(outputFile),buffer.st_mode);
+                int code = reverseFile(file,outputFile,fileStat.st_size);
+                if(code != 0){
+                    printf("error at: %s\n",revPath);
+                    switch (code) {
+                        case WRITE_ERROR_CODE:
+                            perror("fwrite");
+                            break;
+                        case READ_ERROR_CODE:
+                            perror("fread");
+                            break;
+                        default:
+                            perror("undefined error");
+                            break;
+                    }
+                }
+
+                if(fchmod(fileno(outputFile),fileStat.st_mode) != 0){
+                    printf("error at: %s\n",revPath);
+                    perror("chmod");
+                }
+
                 fclose(outputFile);
                 free(revPath);
             }
-            if(S_ISDIR(buffer.st_mode)) {
+            if(S_ISDIR(fileStat.st_mode)) {
                 printf("file is directory: %s\n",path);
                 reverseDir(path);
             }
