@@ -33,7 +33,7 @@ int reverseFile(FILE* inputFile, FILE* outputFile, long sizeofFile){
         }
 
         if(ferror(inputFile)){
-            return -1;
+            return READ_ERROR_CODE;
         }
 
         for (long i = countOfElementsInBuff - 1; i >= 0; --i) {
@@ -41,7 +41,7 @@ int reverseFile(FILE* inputFile, FILE* outputFile, long sizeofFile){
         }
         fwrite(writeBuffer, sizeof(char), countOfElementsInBuff, outputFile);
         if(ferror(inputFile)){
-            return -2;
+            return WRITE_ERROR_CODE;
         }
         offset -= countOfElementsInBuff;
         rest -= countOfElementsInBuff;
