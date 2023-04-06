@@ -9,7 +9,7 @@
 int reverseFile(FILE *inputFile, FILE *outputFile, long sizeofFile) {
 
     long offset = -K_BYTE;
-    if (sizeofFile == 0) {
+    if (sizeofFile <= 0) {
         return 0;
     }
     long rest = sizeofFile;
@@ -18,11 +18,17 @@ int reverseFile(FILE *inputFile, FILE *outputFile, long sizeofFile) {
     char writeBuffer[K_BYTE + 1];
     while (1) {
         if (rest < K_BYTE) {
-            fseek(inputFile, 0, SEEK_SET);
+            if(fseek(inputFile, 0, SEEK_SET) != 0){
+                perror("fseek");
+                return -1;
+            }
             fread(buffer, sizeof(char), rest, inputFile);
             countOfElementsInBuff = rest;
         } else {
-            fseek(inputFile, offset, SEEK_END);
+            if(fseek(inputFile, offset, SEEK_END) != 0){
+                perror("fseek");
+                return -1;
+            }
             fread(buffer, sizeof(char), K_BYTE, inputFile);
             countOfElementsInBuff = K_BYTE;
         }
@@ -48,8 +54,7 @@ int reverseFile(FILE *inputFile, FILE *outputFile, long sizeofFile) {
     }
 }
 
-char *reversePath(char *string) {
-    size_t len = strlen(string);
+char *reversePath(char const *string, size_t len) {
     char *rev = malloc(sizeof(char) * len + 1);
     if (rev == NULL) {
         perror("malloc");
@@ -83,7 +88,7 @@ void reverseDir(char *currDirectory, size_t dirLength) {
     if (currDirectory == NULL) {
         return;
     }
-    char *revDirPath = reversePath(currDirectory);
+    char *revDirPath = reversePath(currDirectory,dirLength);
     if (revDirPath == NULL) {
         return;
     }
@@ -123,13 +128,8 @@ void reverseDir(char *currDirectory, size_t dirLength) {
             continue;
         }
 
-        char path[dirLength+dirLength+2];
+        char path[dirLength+fileLen+2];
 
-        /*char *path = alloca(sizeof(char) * (dirLength+fileLen+2));
-        if (path == NULL) {
-            perror("alloca");
-            continue;
-        }*/
         strcpy(&path[0], currDirectory);
         path[dirLength] = '/';
         strcpy(&path[dirLength + 1], directoryInfo->d_name);
@@ -149,9 +149,8 @@ void reverseDir(char *currDirectory, size_t dirLength) {
 
         if (S_ISREG(fileStat.st_mode)) {
             printf("file is regular: %s\n", path);
-            char *revPath = reversePath(path);
+            char *revPath = reversePath(path,dirLength+fileLen+1);
             if (revPath == NULL) {
-                perror("malloc");
                 fclose(file);
                 continue;
             }
