@@ -3,14 +3,8 @@
 #include <dirent.h>
 #include <malloc.h>
 #include <string.h>
-#include <alloca.h>
 
 #define K_BYTE 1024
-
-enum ERROR_CODES {
-    READ_ERROR_CODE = -1,
-    WRITE_ERROR_CODE = -2,
-};
 
 int reverseFile(FILE *inputFile, FILE *outputFile, long sizeofFile) {
 
@@ -34,7 +28,8 @@ int reverseFile(FILE *inputFile, FILE *outputFile, long sizeofFile) {
         }
 
         if (ferror(inputFile)) {
-            return READ_ERROR_CODE;
+            perror("fread");
+            return -1;
         }
 
         for (long i = countOfElementsInBuff - 1; i >= 0; --i) {
@@ -42,7 +37,8 @@ int reverseFile(FILE *inputFile, FILE *outputFile, long sizeofFile) {
         }
         fwrite(writeBuffer, sizeof(char), countOfElementsInBuff, outputFile);
         if (ferror(inputFile)) {
-            return WRITE_ERROR_CODE;
+            perror("fwrite");
+            return -1;
         }
         offset -= countOfElementsInBuff;
         rest -= countOfElementsInBuff;
@@ -56,6 +52,7 @@ char *reversePath(char *string) {
     size_t len = strlen(string);
     char *rev = malloc(sizeof(char) * len + 1);
     if (rev == NULL) {
+        perror("malloc");
         return NULL;
     }
 
@@ -88,7 +85,6 @@ void reverseDir(char *currDirectory, size_t dirLength) {
     }
     char *revDirPath = reversePath(currDirectory);
     if (revDirPath == NULL) {
-        perror("malloc");
         return;
     }
 
@@ -116,36 +112,36 @@ void reverseDir(char *currDirectory, size_t dirLength) {
     free(revDirPath);
 
     DIR *dir = NULL;
-    struct dirent *A;
+    struct dirent *directoryInfo;
     if ((dir = opendir(currDirectory)) == NULL) {
         perror("opendir");
         return;
     }
-    while ((A = readdir(dir)) != NULL) {
-        size_t fileLen = strlen(A->d_name);
-        if (!strcmp(A->d_name, ".") || !strcmp(A->d_name, "..")) {
-            continue;
-        }
-        char *path = alloca(sizeof(char) * (dirLength+fileLen+2));
-        if (path == NULL) {
-            perror("alloca");
+    while ((directoryInfo = readdir(dir)) != NULL) {
+        size_t fileLen = strlen(directoryInfo->d_name);
+        if (!strcmp(directoryInfo->d_name, ".") || !strcmp(directoryInfo->d_name, "..")) {
             continue;
         }
 
+        char path[dirLength+dirLength+2];
+
+        /*char *path = alloca(sizeof(char) * (dirLength+fileLen+2));
+        if (path == NULL) {
+            perror("alloca");
+            continue;
+        }*/
         strcpy(&path[0], currDirectory);
         path[dirLength] = '/';
-        strcpy(&path[dirLength + 1], A->d_name);
+        strcpy(&path[dirLength + 1], directoryInfo->d_name);
 
         struct stat fileStat;
         FILE *file;
         if ((file = fopen(path, "rb")) == NULL) {
             perror("fopen");
-            free(path);
             continue;
         }
         if (fstat(fileno(file), &fileStat) != 0) {
             perror("fstat");
-            free(path);
             fclose(file);
             continue;
         }
@@ -167,18 +163,11 @@ void reverseDir(char *currDirectory, size_t dirLength) {
                 continue;
             }
             int code = reverseFile(file, outputFile, fileStat.st_size);
-            if (code != 0) {
-                switch (code) {
-                    case WRITE_ERROR_CODE:
-                        perror("fwrite");
-                        break;
-                    case READ_ERROR_CODE:
-                        perror("fread");
-                        break;
-                    default:
-                        perror("undefined error");
-                        break;
-                }
+            if(code != 0){
+                fclose(outputFile);
+                fclose(file);
+                free(revPath);
+                continue;
             }
 
             if (fchmod(fileno(outputFile), fileStat.st_mode) != 0) {
@@ -189,6 +178,7 @@ void reverseDir(char *currDirectory, size_t dirLength) {
             free(revPath);
         }
         if (S_ISDIR(fileStat.st_mode)) {
+            printf("file is directory: %s\n", path);
             reverseDir(path,dirLength+fileLen+1);
         }
         fclose(file);
