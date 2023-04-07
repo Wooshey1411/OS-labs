@@ -8,6 +8,20 @@
 
 int reverseFile(FILE *inputFile, FILE *outputFile, long sizeofFile) {
 
+    if(inputFile == NULL){
+        fprintf(stderr, "input file is null");
+        return -1;
+    }
+    if(outputFile == NULL){
+        fprintf(stderr, "output file is null");
+        return -1;
+    }
+
+    if(sizeofFile < 0){
+        fprintf(stderr,"size of file less than 0");
+        return -1;
+    }
+
     long offset = -K_BYTE;
     if (sizeofFile <= 0) {
         return 0;
@@ -55,6 +69,10 @@ int reverseFile(FILE *inputFile, FILE *outputFile, long sizeofFile) {
 }
 
 char *reversePath(char const *string, size_t len) {
+    if(string == NULL){
+        perror("Input string is null");
+        return NULL;
+    }
     char *rev = malloc(sizeof(char) * len + 1);
     if (rev == NULL) {
         perror("malloc");
@@ -86,6 +104,7 @@ char *reversePath(char const *string, size_t len) {
 
 void reverseDir(char *currDirectory, size_t dirLength) {
     if (currDirectory == NULL) {
+        fprintf(stderr, "current directory is null");
         return;
     }
     char *revDirPath = reversePath(currDirectory,dirLength);
