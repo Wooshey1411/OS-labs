@@ -22,3 +22,7 @@ int removeSymbolLink(int argc, char* argv[]);
 int createHardLink(int argc, char* argv[]);
 
 int removeHardLink(int argc, char* argv[]);
+
+int printPermissionsAndCountOfHardLinks(int argc, char* argv[]);
+
+int setRights(int argc, char* argv[]);
