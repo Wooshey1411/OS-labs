@@ -174,7 +174,7 @@ int printSymbolLinkSourceContent(int argc, char* argv[]){
 }
 
 int removeSymbolLink(int argc, char* argv[]){
-    // ???
+    removeFile(argc,argv);
 }
 
 int createHardLink(int argc, char* argv[]){
@@ -234,6 +234,12 @@ int printPermissionsAndCountOfHardLinks(int argc, char* argv[]){
     rights[9] = '\0';
 
     printf("Count of hard links:%li. Rights:%s\n",fileStat.st_nlink,rights);
+
+    if(fclose(file) == ERROR_CODE){
+        perror("fclose");
+        return ERROR_CODE;
+    }
+
     return SUCCESS_CODE;
 }
 
@@ -244,7 +250,7 @@ int setRights(int argc, char* argv[]){
     }
     // 9 rights
     if(strlen(argv[2]) != 9){
-        fprintf(stderr,"count of right must be 9\n");
+        fprintf(stderr,"count of rights must be 9\n");
         return ERROR_CODE;
     }
     __mode_t mode = 0; // no rights

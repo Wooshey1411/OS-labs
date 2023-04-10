@@ -2,5 +2,5 @@
 #include <stdio.h>
 
 void printErrorOfArgs(int countOfArguments){
-    fprintf(stderr,"Count of arguments must be %d\n",countOfArguments);
+    fprintf(stderr,"count of arguments must be %d\n",countOfArguments);
 }
