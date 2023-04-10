@@ -56,7 +56,7 @@ int reverseFile(FILE *inputFile, FILE *outputFile, long sizeofFile) {
             writeBuffer[countOfElementsInBuff - 1 - i] = buffer[i];
         }
         fwrite(writeBuffer, sizeof(char), countOfElementsInBuff, outputFile);
-        if (ferror(inputFile)) {
+        if (ferror(outputFile)) {
             perror("fwrite");
             return -1;
         }
@@ -70,7 +70,7 @@ int reverseFile(FILE *inputFile, FILE *outputFile, long sizeofFile) {
 
 char *reversePath(char const *string, size_t len) {
     if(string == NULL){
-        perror("Input string is null");
+        fprintf(stderr,"Input string is null");
         return NULL;
     }
     char *rev = malloc(sizeof(char) * len + 1);
