@@ -167,3 +167,35 @@ int printSymbolLinkContent(int argc, char* argv[]){
     printf("%s\n",buffer);
     return SUCCESS_CODE;
 }
+
+int printSymbolLinkSourceContent(int argc, char* argv[]){
+    return printFileContent(argc,argv);
+}
+
+int removeSymbolLink(int argc, char* argv[]){
+    // ???
+}
+
+int createHardLink(int argc, char* argv[]){
+    if (argc != 3) {
+        printErrorOfArgs(2);
+        return ERROR_CODE;
+    }
+    if(link(argv[1],argv[2]) == ERROR_CODE){
+        perror("link");
+        return ERROR_CODE;
+    }
+    return SUCCESS_CODE;
+}
+
+int removeHardLink(int argc, char* argv[]){
+    if (argc != 2) {
+        printErrorOfArgs(1);
+        return ERROR_CODE;
+    }
+    if(unlink(argv[1]) == ERROR_CODE){
+        perror("unlink");
+        return ERROR_CODE;
+    }
+    return SUCCESS_CODE;
+}
