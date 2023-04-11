@@ -53,7 +53,7 @@ void printHelp() {
 }
 
 int createHardLinkToOperator(const char *mainPath, const char *name) {
-    if (link(mainPath, name) == ERROR_CODE) {
+    if (link(mainPath, name) != SUCCESS_CODE) {
         perror("link");
         return ERROR_CODE;
     }
@@ -62,7 +62,7 @@ int createHardLinkToOperator(const char *mainPath, const char *name) {
 
 int createHardLinks(char *mainPath) {
     for (int i = 0; i < COUNT_OF_OPERATORS; ++i) {
-        if (createHardLinkToOperator(mainPath, ALL_OPERATORS[i].nameOfOperation) == ERROR_CODE) {
+        if (createHardLinkToOperator(mainPath, ALL_OPERATORS[i].nameOfOperation) != SUCCESS_CODE) {
             return ERROR_CODE;
         }
     }

@@ -78,7 +78,7 @@ int printDirectoryContent(int argc, char *argv[]) {
 }
 
 int removeFileAtPath(char *path) {
-    if (remove(path) == ERROR_CODE) {
+    if (remove(path) != SUCCESS_CODE) {
         perror("remove");
         return ERROR_CODE;
     }
@@ -90,7 +90,7 @@ int removeDirectory(int argc, char *argv[]) {
         printErrorOfArgs(1);
         return ERROR_CODE;
     }
-    if (nftw(argv[1], (__nftw_func_t) removeFileAtPath, 64, FTW_DEPTH | FTW_PHYS) == ERROR_CODE) {
+    if (nftw(argv[1], (__nftw_func_t) removeFileAtPath, 64, FTW_DEPTH | FTW_PHYS) != SUCCESS_CODE) {
         perror("ftw");
         return ERROR_CODE;
     }
@@ -102,7 +102,7 @@ int createFile(int argc, char *argv[]) {
         printErrorOfArgs(1);
         return ERROR_CODE;
     }
-    if (creat(argv[1], S_IREAD | S_IWRITE | S_IRGRP | S_IROTH) == ERROR_CODE) {
+    if (creat(argv[1], S_IREAD | S_IWRITE | S_IRGRP | S_IROTH) != SUCCESS_CODE) {
         perror("creat");
         return ERROR_CODE;
     }
@@ -130,7 +130,7 @@ int printFileContent(int argc, char *argv[]) {
         buffer[countOfReadChars] = '\0';
         printf("%s", buffer);
     }
-    if (fclose(file) == ERROR_CODE) {
+    if (fclose(file) != SUCCESS_CODE) {
         perror("fclose");
         return ERROR_CODE;
     }
@@ -150,7 +150,7 @@ int createSymbolLink(int argc, char *argv[]) {
         printErrorOfArgs(2);
         return ERROR_CODE;
     }
-    if (symlink(argv[1], argv[2]) == ERROR_CODE) {
+    if (symlink(argv[1], argv[2]) != SUCCESS_CODE) {
         perror("symlink");
         return ERROR_CODE;
     }
@@ -164,7 +164,7 @@ int printSymbolLinkContent(int argc, char *argv[]) {
     }
     char buffer[MAXNAMLEN + 1];
     size_t countOfReadChars;
-    if ((countOfReadChars = readlink(argv[1], buffer, MAXNAMLEN)) == ERROR_CODE) {
+    if ((countOfReadChars = readlink(argv[1], buffer, MAXNAMLEN)) != SUCCESS_CODE) {
         perror("readlink");
         return ERROR_CODE;
     }
@@ -186,7 +186,7 @@ int createHardLink(int argc, char *argv[]) {
         printErrorOfArgs(2);
         return ERROR_CODE;
     }
-    if (link(argv[1], argv[2]) == ERROR_CODE) {
+    if (link(argv[1], argv[2]) != SUCCESS_CODE) {
         perror("link");
         return ERROR_CODE;
     }
@@ -198,7 +198,7 @@ int removeHardLink(int argc, char *argv[]) {
         printErrorOfArgs(1);
         return ERROR_CODE;
     }
-    if (unlink(argv[1]) == ERROR_CODE) {
+    if (unlink(argv[1]) != SUCCESS_CODE) {
         perror("unlink");
         return ERROR_CODE;
     }
@@ -216,7 +216,7 @@ int printPermissionsAndCountOfHardLinks(int argc, char *argv[]) {
         return ERROR_CODE;
     }
     struct stat fileStat;
-    if (fstat(fileno(file), &fileStat) == ERROR_CODE) {
+    if (fstat(fileno(file), &fileStat) != SUCCESS_CODE) {
         perror("fstat");
         fclose(file);
         return ERROR_CODE;
@@ -239,7 +239,7 @@ int printPermissionsAndCountOfHardLinks(int argc, char *argv[]) {
 
     printf("Count of hard links:%li. Rights:%s\n", fileStat.st_nlink, rights);
 
-    if (fclose(file) == ERROR_CODE) {
+    if (fclose(file) != SUCCESS_CODE) {
         perror("fclose");
         return ERROR_CODE;
     }
@@ -287,7 +287,7 @@ int setRights(int argc, char *argv[]) {
     (argv[2][7] == 'w') ? mode |= S_IWOTH : mode;
     (argv[2][8] == 'x') ? mode |= S_IXOTH : mode;
 
-    if (chmod(argv[1], mode) == ERROR_CODE) {
+    if (chmod(argv[1], mode) != SUCCESS_CODE) {
         perror("chmod");
         return ERROR_CODE;
     }
