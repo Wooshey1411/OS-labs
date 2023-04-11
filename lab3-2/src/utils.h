@@ -1,2 +1,0 @@
-
-void printErrorOfArgs(int countOfArguments);

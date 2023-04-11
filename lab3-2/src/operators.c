@@ -2,7 +2,6 @@
 #define _DEFAULT_SOURCE
 #define K_BYTE 1024
 #include "operators.h"
-#include "utils.h"
 #include "config.h"
 #include "sys/stat.h"
 #include <stdio.h>
@@ -11,6 +10,10 @@
 #include <ftw.h>
 #include <fcntl.h>
 #include <unistd.h>
+
+void printErrorOfArgs(int countOfArguments){
+    fprintf(stderr,"count of arguments must be %d\n",countOfArguments);
+}
 
 int makeDirectory(int argc, char *argv[]) {
     if (argc != 2) {
@@ -25,7 +28,7 @@ int makeDirectory(int argc, char *argv[]) {
     return SUCCESS_CODE;
 }
 
-int printDirectoryContents(int argc, char* argv[]){
+int printDirectoryContent(int argc, char* argv[]){
     if(argc != 2){
         printErrorOfArgs(1);
         return ERROR_CODE;
@@ -174,7 +177,7 @@ int printSymbolLinkSourceContent(int argc, char* argv[]){
 }
 
 int removeSymbolLink(int argc, char* argv[]){
-    removeFile(argc,argv);
+    return removeFile(argc,argv);
 }
 
 int createHardLink(int argc, char* argv[]){
