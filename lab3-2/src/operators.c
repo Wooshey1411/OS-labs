@@ -21,8 +21,8 @@ int makeDirectory(int argc, char *argv[]) {
         printErrorOfArgs(1);
         return ERROR_CODE;
     }
-    // mode: user - read and write.
-    if (mkdir(argv[1], S_IRUSR | S_IWUSR) != SUCCESS_CODE) {
+    // mode: rwxr-xr-x
+    if (mkdir(argv[1], S_IRWXU | S_IRGRP | S_IXGRP | S_IROTH | S_IXOTH) != SUCCESS_CODE) {
         perror("mkdir");
         return ERROR_CODE;
     }

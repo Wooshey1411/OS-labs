@@ -10,25 +10,31 @@ void printSpaces(unsigned int countOfSpaces) {
 }
 
 void printHelp() {
-    for (int i = 0; i < 100; ++i) {
+    for (int i = 0; i < 90; ++i) {
         printf("-");
     }
     printf("\n");
     printf("NAME\n");
     printSpaces(10);
     printf("FileManager - utility for working with files\n");
+    printf("\n");
 
     printf("SYNOPSIS\n");
     printSpaces(10);
     printf("FileManager [-c]\n");
+    printf("\n");
 
     printf("DESCRIPTION\n");
     printSpaces(10);
     printf("Utility works uses hard links for designation of operation\n");
     printSpaces(10);
     printf("Every operation have one hard link with current name\n");
+    printf("\n");
     printSpaces(10);
-    printf("Running program with key [-c] creates hard links for all operations\n");
+    printf("-c\n");
+    printSpaces(15);
+    printf("creates hard links for all operations\n");
+    printf("\n");
 
     printf("OPERATIONS\n");
     for (int i = 0; i < COUNT_OF_OPERATORS; ++i) {
@@ -38,10 +44,12 @@ void printHelp() {
         printf("%s\n", ALL_OPERATORS[i].description2);
         printf("\n");
     }
+    printf("\n");
 
-    for (int i = 0; i < 100; ++i) {
+    for (int i = 0; i < 90; ++i) {
         printf("-");
     }
+    printf("\n");
 }
 
 int createHardLinkToOperator(const char *mainPath, const char *name) {
