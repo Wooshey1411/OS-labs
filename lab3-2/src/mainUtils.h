@@ -1,4 +1,4 @@
 
 void printHelp();
 
-int createHardLinks(char* mainPath);
+int createHardLinks(char *mainPath);
