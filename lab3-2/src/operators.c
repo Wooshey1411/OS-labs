@@ -102,7 +102,7 @@ int createFile(int argc, char *argv[]) {
         printErrorOfArgs(1);
         return ERROR_CODE;
     }
-    if (creat(argv[1], S_IREAD | S_IWRITE | S_IRGRP | S_IROTH) != SUCCESS_CODE) {
+    if (creat(argv[1], S_IREAD | S_IWRITE | S_IRGRP | S_IROTH) == ERROR_CODE) {
         perror("creat");
         return ERROR_CODE;
     }
@@ -119,7 +119,7 @@ int printFileContent(int argc, char *argv[]) {
         perror("fopen");
         return ERROR_CODE;
     }
-    char buffer[K_BYTE + 1];
+    char buffer[K_BYTE + 1] = {'\0'};
     while (!feof(file)) {
         size_t countOfReadChars = fread(buffer, sizeof(char), K_BYTE, file);
         if (ferror(file)) {
@@ -275,17 +275,17 @@ int setRights(int argc, char *argv[]) {
         }
     }
     // mapping rights: ___ ___ ___ -> mode
-    (argv[2][0] == 'r') ? mode |= S_IREAD : mode;
-    (argv[2][1] == 'w') ? mode |= S_IWRITE : mode;
-    (argv[2][2] == 'x') ? mode |= S_IEXEC : mode;
+    mode |= (argv[2][0] == 'r') ? S_IREAD : 0;
+    mode |= (argv[2][1] == 'w') ? S_IWRITE : 0;
+    mode |= (argv[2][2] == 'x') ? S_IEXEC : 0;
 
-    (argv[2][3] == 'r') ? mode |= S_IRGRP : mode;
-    (argv[2][4] == 'w') ? mode |= S_IWGRP : mode;
-    (argv[2][5] == 'x') ? mode |= S_IXGRP : mode;
+    mode |= (argv[2][3] == 'r') ? S_IRGRP : 0;
+    mode |= (argv[2][4] == 'w') ? S_IWGRP : 0;
+    mode |= (argv[2][5] == 'x') ? S_IXGRP : 0;
 
-    (argv[2][6] == 'r') ? mode |= S_IROTH : mode;
-    (argv[2][7] == 'w') ? mode |= S_IWOTH : mode;
-    (argv[2][8] == 'x') ? mode |= S_IXOTH : mode;
+    mode |= (argv[2][6] == 'r') ? S_IROTH : 0;
+    mode |= (argv[2][7] == 'w') ? S_IWOTH : 0;
+    mode |= (argv[2][8] == 'x') ? S_IXOTH : 0;
 
     if (chmod(argv[1], mode) != SUCCESS_CODE) {
         perror("chmod");

@@ -11,7 +11,7 @@ struct Operator {
     const char *description2;
 };
 
-static const struct Operator ALL_OPERATORS[] = {
+static const struct Operator allOperators[] = {
         {makeDirectory,                       "makeDirectory",                       "makeDirectory [PATH]",                            "makes directory by PATH"},
         {printDirectoryContent,               "printDirectoryContent",               "printDirectoryContent [FILE_PATH]",               "prints content of directory by FILE_PATH"},
         {removeDirectory,                     "removeDirectory",                     "removeDirectory [PATH]",                          "removes all directory content by PATH and remove this directory"},
@@ -28,4 +28,4 @@ static const struct Operator ALL_OPERATORS[] = {
         {setRights,                           "setRights",                           "setRights [FILE_PATH] [RIGHTS]",                  "set rights RIGHTS on file FILE_PATH format of rights is ---------"}
 };
 
-static const unsigned int COUNT_OF_OPERATORS = sizeof(ALL_OPERATORS) / sizeof(ALL_OPERATORS[0]);
+static const unsigned int COUNT_OF_OPERATORS = sizeof(allOperators) / sizeof(allOperators[0]);
