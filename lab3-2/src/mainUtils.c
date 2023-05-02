@@ -9,13 +9,13 @@
 #define COUNT_OF_SPACES_BIG 15
 
 void printHelp() {
-    char delimiters[COUNT_OF_DELIMITER_SYM+1] = {'\0'};
+    char delimiters[COUNT_OF_DELIMITER_SYM+1] = {0};
     memset(delimiters,'-',COUNT_OF_DELIMITER_SYM);
 
-    char spacesSm[COUNT_OF_SPACES_SM+1] = {'\0'};
+    char spacesSm[COUNT_OF_SPACES_SM+1] = {0};
     memset(spacesSm,' ',COUNT_OF_SPACES_SM);
 
-    char spacesBig[COUNT_OF_SPACES_BIG+1] = {'\0'};
+    char spacesBig[COUNT_OF_SPACES_BIG+1] = {0};
     memset(spacesBig,' ',COUNT_OF_SPACES_BIG);
 
     printf("%s\n",delimiters);

@@ -25,6 +25,9 @@ int main(int argc, char *argv[]) {
                 return SUCCESS_CODE;
             case 'c':
                 return createHardLinks(argv[0]);
+            default:
+                printf("Bad key. Use key [-h] for watch a information\n");
+                return SUCCESS_CODE;
         }
     }
 

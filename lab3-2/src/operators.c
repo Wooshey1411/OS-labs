@@ -119,7 +119,7 @@ int printFileContent(int argc, char *argv[]) {
         perror("fopen");
         return ERROR_CODE;
     }
-    char buffer[K_BYTE + 1] = {'\0'};
+    char buffer[K_BYTE + 1] = {0};
     while (!feof(file)) {
         size_t countOfReadChars = fread(buffer, sizeof(char), K_BYTE, file);
         if (ferror(file)) {
