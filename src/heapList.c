@@ -24,6 +24,8 @@ struct HeapNode* createNode(void* begin, struct HeapNode* prev, unsigned int isS
     } else{
         node.prev = NULL;
     }
-    memcpy(begin,&node,getSizeOfNode());
+    if(memcpy(begin,&node,getSizeOfNode()) == NULL){
+        return NULL;
+    }
     return begin;
 }
