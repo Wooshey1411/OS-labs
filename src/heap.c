@@ -10,6 +10,11 @@
 static unsigned char isInited = 0;
 static struct HeapNode* startNode;
 
+void errorDestroy(){
+    fprintf(stderr,"Heap corrupted!\n");
+    destroyHeap();
+    raise(SIGSEGV);
+}
 
 struct HeapNode* init(size_t size){
     size_t maxSize = getpagesize()*100;
@@ -73,31 +78,17 @@ void* myMalloc(size_t size){
             return (void*)((uintptr_t)node + getSizeOfNode());
         }
         node = node->next;
+        if(node->next != NULL && (node->next->preamble[0] != PREAMBLE_VALUE || node->next->preamble[1] != PREAMBLE_VALUE
+        || node->next->preamble[2] != PREAMBLE_VALUE || node->next->preamble[3] != PREAMBLE_VALUE)){
+            errorDestroy();
+        }
     }
     fprintf(stderr,"not enough memory\n");
     return NULL;
 }
 
 void destroyHeap(){
-
-
-    FILE* dump;
-    if((dump = fopen("heap.dump","w")) == NULL){
-        perror("fopen");
-    } else{
-        fwrite(startNode,COUNT_OF_PAGES*getpagesize(),1,dump);
-        fclose(dump);
-    }
-
-
-
     munmap(startNode,COUNT_OF_PAGES*getpagesize());
-}
-
-void errorDestroy(){
-    fprintf(stderr,"Heap corrupted!\n");
-    destroyHeap();
-    raise(SIGSEGV);
 }
 
 void myFree(void* p){
@@ -105,28 +96,40 @@ void myFree(void* p){
 
     if(leftNode < startNode || p > (void*)((uintptr_t)startNode + COUNT_OF_PAGES*getSizeOfNode())){
         errorDestroy();
-    }
+    } // pointer not in mmap region
 
     for (int i = 0; i < 4; ++i) {
         if(leftNode->preamble[i] != PREAMBLE_VALUE || leftNode->next->preamble[i] != PREAMBLE_VALUE){
             errorDestroy();
         }
     }
+
     if(leftNode->isAllocated == 0 || (void*)((uintptr_t)p + leftNode->countOfBytes) != leftNode->next){
         errorDestroy();
-    }
+    } // allocated memory always ends with node
+
     leftNode->isAllocated = 0;
     leftNode->countOfBytes = 0;
-    while(leftNode->prev != NULL && leftNode->prev->isAllocated == 0){
+    while(leftNode->prev != NULL && leftNode->prev->isAllocated == 0){ // [#] -> [] -> [] -> [@] -> [] => [#] -> [@] -> [] | # - allocated, [] not alloc. [@] curr node (not alloc)
         leftNode->prev->next = leftNode->next;
         leftNode = leftNode->prev;
     }
 
-    while(leftNode->next != NULL){
+    while(leftNode->next != NULL){ // [#] -> [@] -> [] -> [] -> [#] => [#] -> [@] -> [#] both cycles decrease count of segments (less segmentation)
         leftNode->next = leftNode->next->next;
         if(leftNode-> next != NULL && leftNode->next->isAllocated){
             break;
         }
     }
 
+}
+
+void dumpHeap(char* path){
+    FILE* dump;
+    if((dump = fopen(path,"w")) == NULL){
+        perror("fopen");
+    } else{
+        fwrite(startNode,COUNT_OF_PAGES*getpagesize(),1,dump);
+        fclose(dump);
+    }
 }
